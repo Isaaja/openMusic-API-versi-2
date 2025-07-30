@@ -31,6 +31,20 @@ class AuthenticationsHandler {
     response.code(201);
     return response;
   }
+
+  async putAuthenticationHandler(request) {
+    this._validator.validatePutAuthenticationPayload(request.payload);
+    const { refreshToken } = request.payload;
+    await this._authenticationsService.verifyRefreshToken(refreshToken);
+    const { userId } = await this._tokenManager.verifyRefreshToken(
+      refreshToken
+    );
+    const accessToken = this._tokenManager.generateAccessToken(userId);
+    return {
+      status: "success",
+      accessToken,
+    };
+  }
 }
 
 module.exports = AuthenticationsHandler;
