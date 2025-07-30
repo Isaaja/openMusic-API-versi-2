@@ -2,7 +2,7 @@ const routes = (handler) => [
   {
     method: "POST",
     path: "/authentications",
-    handler: handler,
+    handler: handler.postAuthenticationHandler,
   },
   {
     method: "PUT",
