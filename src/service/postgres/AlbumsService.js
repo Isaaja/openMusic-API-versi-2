@@ -61,7 +61,7 @@ class AlbumsService {
   }
   async listOfSongsInAlbum(id) {
     const query = {
-      text: 'SELECT * FROM songs WHERE "albumId" = $1',
+      text: 'SELECT * FROM songs WHERE "album_id" = $1',
       values: [id],
     };
     const result = await this._pool.query(query);

@@ -46,7 +46,7 @@ class UsersService {
 
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new InvariantError("Kredential Anda salah");
+      throw new AuthenticationError("Kredential Anda salah");
     }
     const { id, password: hashedPassword } = result.rows[0];
     const match = await bcrypt.compare(password, hashedPassword);

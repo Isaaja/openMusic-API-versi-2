@@ -42,7 +42,20 @@ class AuthenticationsHandler {
     const accessToken = this._tokenManager.generateAccessToken(userId);
     return {
       status: "success",
-      accessToken,
+      data: {
+        accessToken,
+      },
+    };
+  }
+
+  async deleteAuthenticationHandler(request) {
+    this._validator.validatePutAuthenticationPayload(request.payload);
+    const { refreshToken } = request.payload;
+    await this._authenticationsService.verifyRefreshToken(refreshToken);
+    await this._authenticationsService.deleteRefreshToken(refreshToken);
+    return {
+      status: "success",
+      message: "Berhasil menghapus token",
     };
   }
 }
