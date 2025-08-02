@@ -3,6 +3,7 @@ const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { mapSongsInPlaylistDBToModel } = require("../../utils/index");
+const AuthorizationError = require("../../exceptions/AuthorizationsError");
 class PlaylistsService {
   constructor() {
     this._pool = new Pool();
@@ -52,6 +53,16 @@ class PlaylistsService {
   }
 
   async addSongToPlaylist({ playlistId, songId }) {
+    const songQuery = {
+      text: "SELECT id FROM songs WHERE id = $1",
+      values: [songId],
+    };
+
+    const songResult = await this._pool.query(songQuery);
+
+    if (!songResult.rowCount) {
+      throw new NotFoundError("Lagu tidak ditemukan");
+    }
     const id = "song-" + nanoid(16);
     const query = {
       text: `INSERT INTO playlist_songs (id, playlist_id, song_id) VALUES ($1, $2, $3) RETURNING id`,
@@ -64,21 +75,40 @@ class PlaylistsService {
     return result.rows;
   }
 
+  async verifyPlaylistOwner({ playlistId, credentialId }) {
+    const query = {
+      text: "SELECT * FROM playlists WHERE id = $1",
+      values: [playlistId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError("Playlist tidak ditemukan");
+    }
+
+    const playlist = result.rows[0];
+
+    if (playlist.owner !== credentialId) {
+      throw new AuthorizationError("Anda tidak berhak mengakses resource ini");
+    }
+  }
+
   async getSongInPlaylist(id) {
     const query = {
       text: `
-      SELECT 
-        playlists.id AS playlist_id,
-        playlists.name AS playlist_name,
-        users.username AS owner_username,
-        songs.id AS song_id,
-        songs.title,
-        songs.performer
-      FROM playlists
-      JOIN users ON playlists.owner = users.id
-      JOIN playlist_songs ON playlists.id = playlist_songs.playlist_id
-      JOIN songs ON playlist_songs.song_id = songs.id
-      WHERE playlists.id = $1;
+     SELECT 
+  playlists.id AS playlist_id,
+  playlists.name AS playlist_name,
+  users.username AS owner_username,
+  songs.id AS song_id,
+  songs.title,
+  songs.performer
+FROM playlists
+JOIN users ON playlists.owner = users.id
+LEFT JOIN playlist_songs ON playlists.id = playlist_songs.playlist_id
+LEFT JOIN songs ON playlist_songs.song_id = songs.id
+WHERE playlists.id = $1;
+
 
     `,
       values: [id],

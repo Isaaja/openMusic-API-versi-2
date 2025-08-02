@@ -129,6 +129,15 @@ const init = async () => {
       return newResponse;
     }
 
+    if (response.isBoom && response.output.statusCode === 401) {
+      return h
+        .response({
+          status: "fail",
+          message: "Autentikasi diperlukan",
+        })
+        .code(401);
+    }
+
     if (response.output?.statusCode === 404) {
       return h
         .response({
