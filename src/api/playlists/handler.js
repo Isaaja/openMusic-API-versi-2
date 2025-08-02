@@ -11,9 +11,11 @@ class PlaylistsHandler {
   async postPlaylistsHandler(request, h) {
     this._validator.validatePostPlaylistsPayload(request.payload);
     const { name } = request.payload;
-    const { id: owner } = request.auth.credentials;
-    console.log(request.auth.credentials);
-    const playlistId = await this._service.addPlaylist({ name, owner: owner });
+    const { id: credentialId } = request.auth.credentials;
+    const playlistId = await this._service.addPlaylist({
+      name,
+      owner: credentialId,
+    });
     const response = h.response({
       status: "success",
       data: {
@@ -23,6 +25,26 @@ class PlaylistsHandler {
 
     response.code(201);
     return response;
+  }
+
+  async getPlaylistsHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const playlists = await this._service.getPlaylist(credentialId);
+    return {
+      status: "success",
+      data: {
+        playlists,
+      },
+    };
+  }
+
+  async deletePlaylistsByIdHandler(request) {
+    const { id } = request.params;
+    await this._service.deletePlaylist(id);
+    return {
+      status: "success",
+      message: "Berhasil menghapus Playlist",
+    };
   }
 }
 
