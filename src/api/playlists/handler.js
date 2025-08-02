@@ -73,6 +73,16 @@ class PlaylistsHandler {
       },
     };
   }
+
+  async deleteSongfromPlaylistsByIdHandler(request) {
+    const { id: playlistId } = request.params;
+    const { songId } = request.payload;
+    await this._service.deleteSongfromPlaylists({ playlistId, songId });
+    return {
+      status: "success",
+      message: "Lagu berhasil di hapus",
+    };
+  }
 }
 
 module.exports = PlaylistsHandler;

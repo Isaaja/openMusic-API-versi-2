@@ -67,18 +67,18 @@ class PlaylistsService {
   async getSongInPlaylist(id) {
     const query = {
       text: `
-     SELECT 
-  playlists.id AS playlist_id,
-  playlists.name AS playlist_name,
-  users.username AS owner_username,
-  songs.id AS song_id,
-  songs.title,
-  songs.performer
-FROM playlists
-JOIN users ON playlists.owner = users.id
-JOIN playlist_songs ON playlists.id = playlist_songs.playlist_id
-JOIN songs ON playlist_songs.song_id = songs.id
-WHERE playlists.id = $1;
+      SELECT 
+        playlists.id AS playlist_id,
+        playlists.name AS playlist_name,
+        users.username AS owner_username,
+        songs.id AS song_id,
+        songs.title,
+        songs.performer
+      FROM playlists
+      JOIN users ON playlists.owner = users.id
+      JOIN playlist_songs ON playlists.id = playlist_songs.playlist_id
+      JOIN songs ON playlist_songs.song_id = songs.id
+      WHERE playlists.id = $1;
 
     `,
       values: [id],
@@ -91,6 +91,18 @@ WHERE playlists.id = $1;
 
     const playlist = mapSongsInPlaylistDBToModel(result.rows);
     return playlist;
+  }
+
+  async deleteSongfromPlaylists({ playlistId, songId }) {
+    const query = {
+      text: "DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id",
+      values: [playlistId, songId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError("Lagu di playlist tidak ditemukan");
+    }
+    return result.rows;
   }
 }
 module.exports = PlaylistsService;

@@ -30,11 +30,11 @@ const routes = (handler) => [
     path: "/playlists/{id}/songs",
     handler: handler.getSongInPlaylistsByIdHandler,
   },
-  // {
-  //   method: "DELETE",
-  //   path: "/playlists/{id}/songs",
-  //   handler: handler.deleteSongfromPlaylistsByIdHandler,
-  // },
+  {
+    method: "DELETE",
+    path: "/playlists/{id}/songs",
+    handler: handler.deleteSongfromPlaylistsByIdHandler,
+  },
 ];
 
 module.exports = routes;
