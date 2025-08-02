@@ -46,6 +46,33 @@ class PlaylistsHandler {
       message: "Berhasil menghapus Playlist",
     };
   }
+
+  async postSongToPlaylistsByIdHandler(request, h) {
+    this._validator.validatePostSongToPlaylistPayload(request.payload);
+    const { songId } = request.payload;
+    const { id: playlistId } = request.params;
+    await this._service.addSongToPlaylist({
+      playlistId,
+      songId,
+    });
+    const response = h.response({
+      status: "success",
+      message: "Berhasil menambahkan ke album",
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getSongInPlaylistsByIdHandler(request) {
+    const { id } = request.params;
+    const playlist = await this._service.getSongInPlaylist(id);
+    return {
+      status: "success",
+      data: {
+        playlist,
+      },
+    };
+  }
 }
 
 module.exports = PlaylistsHandler;

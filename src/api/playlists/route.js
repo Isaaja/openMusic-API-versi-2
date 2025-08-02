@@ -25,11 +25,11 @@ const routes = (handler) => [
     path: "/playlists/{id}/songs",
     handler: handler.postSongToPlaylistsByIdHandler,
   },
-  // {
-  //   method: "GET",
-  //   path: "/playlists/{id}/songs",
-  //   handler: handler.getPlaylistsByIdHandler,
-  // },
+  {
+    method: "GET",
+    path: "/playlists/{id}/songs",
+    handler: handler.getSongInPlaylistsByIdHandler,
+  },
   // {
   //   method: "DELETE",
   //   path: "/playlists/{id}/songs",
