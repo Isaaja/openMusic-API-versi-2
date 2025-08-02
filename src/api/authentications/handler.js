@@ -17,8 +17,10 @@ class AuthenticationsHandler {
       username,
       password
     );
-    const accessToken = this._tokenManager.generateAccessToken({ userId });
-    const refreshToken = this._tokenManager.generateRefreshToken({ userId });
+    const accessToken = this._tokenManager.generateAccessToken({ id: userId });
+    const refreshToken = this._tokenManager.generateRefreshToken({
+      id: userId,
+    });
     await this._authenticationsService.addRefreshToken(refreshToken);
     const response = h.response({
       status: "success",
@@ -36,10 +38,8 @@ class AuthenticationsHandler {
     this._validator.validatePutAuthenticationPayload(request.payload);
     const { refreshToken } = request.payload;
     await this._authenticationsService.verifyRefreshToken(refreshToken);
-    const { userId } = await this._tokenManager.verifyRefreshToken(
-      refreshToken
-    );
-    const accessToken = this._tokenManager.generateAccessToken(userId);
+    const { id } = await this._tokenManager.verifyRefreshToken(refreshToken);
+    const accessToken = this._tokenManager.generateAccessToken({ id });
     return {
       status: "success",
       data: {
